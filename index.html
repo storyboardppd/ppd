@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Palavras Cruzadas</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-image: url('https://via.placeholder.com/1200x800'); /* Substitua pela URL da imagem desejada */
+            background-size: cover;
+            background-position: center;
+            color: #333;
+            text-align: center;
+            margin: 0;
+            padding: 20px;
+        }
+        table {
+            margin: 20px auto;
+            border-collapse: collapse;
+        }
+        td {
+            width: 30px;
+            height: 30px;
+            border: 1px solid #333;
+            text-align: center;
+            vertical-align: middle;
+            font-size: 16px;
+        }
+        td input {
+            width: 100%;
+            height: 100%;
+            border: none;
+            text-align: center;
+            font-size: 16px;
+        }
+        .header-cell {
+            background-color: black;
+            color: white;
+        }
+        .answer-cell {
+            background-color: white;
+        }
+        .inactive-cell {
+            background-color: gray;
+        }
+        #questions {
+            color: blue;
+            margin-top: 20px;
+            text-align: left;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        button {
+            margin: 10px;
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <h1>Jogo de Palavras Cruzadas</h1>
+    <button onclick="startGame()">Iniciar Jogo</button>
+    <button onclick="checkAnswers()">Conferir Respostas</button>
+    <table id="grid"></table>
+    <div id="questions"></div>
+
+    <script>
+        const questions = [
+            { question: "Capital da França", answer: "PARIS", direction: "horizontal", startRow: 1, startCol: 1 },
+            { question: "Maior planeta do sistema solar", answer: "JUPITER", direction: "horizontal", startRow: 8, startCol: 4 },
+            { question: "Inventor da lâmpada", answer: "EDISON", direction: "horizontal", startRow: 3, startCol: 2 },
+            { question: "País do CHUCRUTE", answer: "ALEMANHA", direction: "vertical", startRow: 1, startCol: 2 },
+            { question: "Metal precioso", answer: "OURO", direction: "horizontal", startRow: 6, startCol: 5 },
+            { question: "Continente gelado", answer: "ANTARTIDA", direction: "vertical", startRow: 2, startCol: 7 }        
+        ];
+
+        const gridSize = 10;
+
+        function createGrid() {
+            const table = document.getElementById('grid');
+            table.innerHTML = '';
+
+            for (let i = 0; i <= gridSize; i++) {
+                const row = document.createElement('tr');
+                for (let j = 0; j <= gridSize; j++) {
+                    const cell = document.createElement('td');
+
+                    if (i === 0 && j > 0) {
+                        cell.textContent = j;
+                        cell.className = 'header-cell';
+                    } else if (j === 0 && i > 0) {
+                        cell.textContent = i;
+                        cell.className = 'header-cell';
+                    } else if (i > 0 && j > 0) {
+                        const input = document.createElement('input');
+                        input.setAttribute('maxlength', '1');
+                        input.disabled = true;
+                        cell.appendChild(input);
+                        cell.className = 'inactive-cell';
+                    }
+                    row.appendChild(cell);
+                }
+                table.appendChild(row);
+            }
+        }
+
+        function startGame() {
+            createGrid();
+            const table = document.getElementById('grid');
+
+            questions.forEach(({ answer, direction, startRow, startCol }) => {
+                for (let i = 0; i < answer.length; i++) {
+                    const row = startRow - 1 + (direction === 'vertical' ? i : 0);
+                    const col = startCol - 1 + (direction === 'horizontal' ? i : 0);
+                    const cell = table.rows[row + 1].cells[col + 1];
+                    const input = cell.querySelector('input');
+                    if (input) {
+                        input.disabled = false;
+                        cell.className = 'answer-cell';
+                    }
+                }
+            });
+
+            const questionsDiv = document.getElementById('questions');
+            questionsDiv.innerHTML = '';
+            questions.forEach(({ question, direction, startRow, startCol }, index) => {
+                const questionElement = document.createElement('p');
+                questionElement.textContent = `${index + 1}. ${question} (${direction}, linha ${startRow}, coluna ${startCol})`;
+                questionsDiv.appendChild(questionElement);
+            });
+        }
+
+        function checkAnswers() {
+            let correct = true;
+            const table = document.getElementById('grid');
+
+            questions.forEach(({ answer, direction, startRow, startCol }) => {
+                for (let i = 0; i < answer.length; i++) {
+                    const row = startRow - 1 + (direction === 'vertical' ? i : 0);
+                    const col = startCol - 1 + (direction === 'horizontal' ? i : 0);
+                    const cell = table.rows[row + 1].cells[col + 1];
+                    const input = cell.querySelector('input');
+                    if (input && input.value.toUpperCase() !== answer[i].toUpperCase()) {
+                        correct = false;
+                        input.style.backgroundColor = 'red';
+                    } else {
+                        input.style.backgroundColor = 'lightgreen';
+                    }
+                }
+            });
+
+            alert(correct ? 'Parabéns! Todas as respostas estão corretas!' : 'Existem respostas incorretas. Tente novamente.');
+        }
+
+        createGrid();
+    </script>
+</body>
+</html>
